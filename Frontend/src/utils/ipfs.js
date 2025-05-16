@@ -1,17 +1,14 @@
-import { NFTStorage, File } from 'nft.storage';
+import { create } from 'ipfs-http-client';
 
-
-const token = 'de4ebf93.efb8b983d32c434e91593eeebd17185e';
-
-const client = new NFTStorage({ token });
+const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' });
 
 export async function uploadToIPFS(file) {
-  const metadata = await client.store({
-    name: file.name,
-    description: 'Sound Ledger Music File',
-    image: new File([file], file.name, { type: file.type }),
-  });
-
-  // Link IPFS
-  return metadata.data.image.href;
+  try {
+    const added = await client.add(file);
+    return `https://ipfs.io/ipfs/${added.path}`;
+  } catch (error) {
+    console.error('Error uploading file: ', error);
+    throw error;
+  }
 }
+
